@@ -6,7 +6,7 @@ from config import BID_DICT, TYPE_DICT
 from utils import totimestamp
 from sqlitedao import BalanceDao, PaymentDao
 
-logger = log.new_logger('BillingBot')
+logger = log.new_logger('BillingMaster')
 paydao = PaymentDao()
 baldao = BalanceDao()
 
@@ -34,6 +34,7 @@ def billing_reply(message):
         reply = func_del(msg)
     elif message.content == '重新排序':
         paydao.order_by_time()
+        logger.info('order_by_time()')
         reply = 'order_by_time() executed'
     elif message.content in ['余额', '查询余额']:
         reply = check_balance()
@@ -52,6 +53,7 @@ def check_balance():
         ) for b in balance
     ]
     reply = '```' + "\n".join(replys) + '```'
+    logger.info('check_balance()')
     return reply
 
 
@@ -156,6 +158,7 @@ def func_out(msg):
         'last_update': now
     })
     reply = f'[{datetime.fromtimestamp(now)}] {value} {BID_DICT[bid]} {TYPE_DICT[type]} {comment} added'
+    logger.info(reply)
     return reply
 
 
@@ -198,10 +201,12 @@ def func_transfer(msg):
         'last_update': now
     })
     reply = f'[{datetime.fromtimestamp(now)}] transfer {value} from {BID_DICT[bid_from]} to {BID_DICT[bid_to]}'
+    logger.info(reply)
     return reply
 
 
 def func_view(msg):
+    logger.info(f'func_view({msg})')
     now = int(datetime.now().timestamp())
     if not len(msg) or msg == '今天' or msg == '今日':
         yyyy = datetime.today().year
@@ -297,6 +302,7 @@ def func_sel(msg):
     return reply
 
 def func_output_pays(pays):
+    logger.info(f'func_output_pays(), len(pays): {len(pays)}')
     if not len(pays):
         return 'no record'
 
@@ -325,6 +331,7 @@ def func_output_pays(pays):
 
 
 def func_mod(msg):
+    logger.info(f'func_mod({msg})')
     usage = '改 pid column value'
     now = int(datetime.now().timestamp())
     prms = re.match('(\d+) (value|type|bid|time|comment) (.+)', msg)

@@ -57,6 +57,7 @@ class PaymentDao(SqliteDao):
             time INT NOT NULL,
             comment VARCHAR (30)
             ''')
+        logger.info('PaymentDao Initialized')
 
 
     @staticmethod
@@ -224,6 +225,7 @@ class BalanceDao(SqliteDao):
                     'value': 0,
                     'last_update': 0,
                 })
+        logger.info('BalanceDao Initialized')
 
 
     @staticmethod
