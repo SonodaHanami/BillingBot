@@ -11,33 +11,36 @@ paydao = PaymentDao()
 baldao = BalanceDao()
 
 def billing_reply(message):
-    if message.content.startswith('收入'):
-        msg = message.content[2:].strip()
+    msg = message.content.strip()
+    if msg.startswith('收入'):
+        msg = msg[2:].strip()
         reply = func_in(msg)
-    elif message.content[0:2] in ['记账', '支出']:
-        msg = message.content[2:].strip()
+    elif msg[0:2] in ['记账', '支出']:
+        msg = msg[2:].strip()
         reply = func_out(msg)
-    elif message.content.startswith('转移'):
-        msg = message.content[2:].strip()
+    elif msg.startswith('转移'):
+        msg = msg[2:].strip()
         reply = func_transfer(msg)
-    elif message.content.startswith('查'):
-        msg = message.content[1:].strip()
+    elif msg.startswith('查'):
+        msg = msg[1:].strip()
         reply = func_view(msg)
-    elif message.content.startswith('SELECT '):
-        msg = message.content[7:].strip()
+    elif msg.startswith('SELECT '):
+        msg = msg[7:].strip()
         reply = func_sel(msg)
-    elif message.content.startswith('改'):
-        msg = message.content[1:].strip()
+    elif msg.startswith('改'):
+        msg = msg[1:].strip()
         reply = func_mod(msg)
-    elif message.content.startswith('删'):
-        msg = message.content[1:].strip()
+    elif msg.startswith('删'):
+        msg = msg[1:].strip()
         reply = func_del(msg)
-    elif message.content == '重新排序':
+    elif msg == '重新排序':
         paydao.order_by_time()
         logger.info('order_by_time()')
         reply = 'order_by_time() executed'
-    elif message.content in ['余额', '查询余额']:
+    elif msg == '余额':
         reply = check_balance()
+    elif msg == '配置':
+        reply = check_config()
     else:
         reply = None
 
@@ -55,6 +58,25 @@ def check_balance():
     reply = '```' + "\n".join(replys) + '```'
     logger.info('check_balance()')
     return reply
+
+
+def check_config():
+    replys = []
+
+    reply = '```BID_DICT:\n'
+    for k in BID_DICT.keys():
+        reply += f'{k} {BID_DICT[k]}\n'
+    reply = reply[:-1] + '```'
+    replys.append(reply)
+
+    reply = '```TYPE_DICT:\n'
+    for k in TYPE_DICT.keys():
+        reply += f'{k} {TYPE_DICT[k]}\n'
+    reply = reply[:-1] + '```'
+    replys.append(reply)
+
+    logger.info('check_config()')
+    return replys
 
 
 def func_in(msg):
@@ -307,7 +329,7 @@ def func_output_pays(pays):
         return 'no record'
 
     i = 0
-    reply = []
+    replys = []
     size = max(len(str(pays[-1]['pid'])), 3) # len('pid') == 3
     while i < len(pays):
         j = i
@@ -325,9 +347,9 @@ def func_output_pays(pays):
             )
             j = j + 1
         r += '```'
-        reply.append(r)
+        replys.append(r)
         i = i + 50
-    return reply
+    return replys
 
 
 def func_mod(msg):
