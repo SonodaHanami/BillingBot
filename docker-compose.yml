@@ -1,0 +1,7 @@
+version: "3"
+services:
+  billing-bot:
+    build: .
+    volumes:
+      - ./:/bot/
+    command: python3.8 -u /bot/run.py
