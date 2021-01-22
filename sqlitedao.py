@@ -211,6 +211,19 @@ class BalanceDao(SqliteDao):
             value        INT NOT NULL,
             last_update  INT NOT NULL
             ''')
+        from config import BID_DICT
+        for bid in BID_DICT.keys():
+            bal = self.find_one(bid)
+            if bal:
+                bal['name'] = BID_DICT[bid]
+                self.modify(bal)
+            else:
+                self.add({
+                    'bid': bid,
+                    'name': BID_DICT[bid],
+                    'value': 0,
+                    'last_update': 0,
+                })
 
 
     @staticmethod
@@ -236,7 +249,7 @@ class BalanceDao(SqliteDao):
                 logger.error(f'[BalanceDao.add] {e}')
                 raise DatabaseError('添加记录失败')
 
-    def find_one(self, name):
+    def find_one(self, bid):
         with self._connect() as conn:
             try:
                 ret = conn.execute('''
