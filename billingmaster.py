@@ -52,7 +52,7 @@ def check_balance():
     balance = baldao.find_all()
     replys = [
         '{0}|{2:>10,}|{1}'.format(
-            b['bid'], BID_DICT[b['bid']], b['value'], b['name']
+            b['bid'], b['name'], b['value']
         ) for b in balance
     ]
     reply = '```' + "\n".join(replys) + '```'
@@ -91,8 +91,8 @@ def func_in(msg):
     elif len(nums) == 2:
         value = int(nums[0])
         bid  = int(nums[1])
-    if bid == 0:
-        return 'bid should be between 1 and 5'
+    if bid == 0 or bid not in BID_DICT:
+        return 'bid should be in BID_DICT and not be 0.'
     comment = re.sub('\d+', '', msg).strip()
     if comment == '':
         comment = None
@@ -113,7 +113,8 @@ def func_in(msg):
         'value'      : value * (-1),
         'last_update': now
     })
-    reply = f'[{datetime.fromtimestamp(now)}] -{value} {BID_DICT[bid]} {comment} added'
+    reply = f'[{datetime.fromtimestamp(now)}] -{value} ' + \
+            f'{BID_DICT.get(bid, bid)} {comment} added'
     logger.info(reply)
     return reply
 
@@ -157,8 +158,10 @@ def func_out(msg):
             type  = int(nums[2])
         else:
             return usage
-    if bid == 0:
-        return 'bid should be between 1 and 5'
+    if bid == 0 or bid not in BID_DICT:
+        return 'bid should be in BID_DICT and not be 0.'
+    if type not in TYPE_DICT:
+        return 'type should be in TYPE_DICT.'
     comment = re.sub('\d+', '', msg).strip()
     if comment == '':
         comment = None
@@ -179,7 +182,9 @@ def func_out(msg):
         'value'      : value,
         'last_update': now
     })
-    reply = f'[{datetime.fromtimestamp(now)}] {value} {BID_DICT[bid]} {TYPE_DICT[type]} {comment} added'
+    reply = f'[{datetime.fromtimestamp(now)}] {value} ' + \
+            f'{BID_DICT.get(bid, bid)} {TYPE_DICT.get(type, type)} ' + \
+            f'{comment} added'
     logger.info(reply)
     return reply
 
@@ -194,8 +199,8 @@ def func_transfer(msg):
     bid_from = int(nums[1])
     bid_to   = int(nums[2])
     comment  = re.sub('\d+', '', msg).strip()
-    if bid_from == 0 or bid_to == 0:
-        return 'bid should be between 1 and 5'
+    if (bid_from == 0 or bid_from not in BID_DICT) or (bid_to == 0 or bid_to not in BID_DICT):
+        return 'bid should be in BID_DICT and not be 0.'
     if bid_from == bid_to:
         return 'same bid'
     paydao.add({
@@ -222,7 +227,9 @@ def func_transfer(msg):
         'value'      : value * (-1),
         'last_update': now
     })
-    reply = f'[{datetime.fromtimestamp(now)}] transfer {value} from {BID_DICT[bid_from]} to {BID_DICT[bid_to]}'
+    reply = f'[{datetime.fromtimestamp(now)}] transfer {value} ' + \
+            f'from {BID_DICT.get(bid_from, bid_from)} ' + \
+            f'to {BID_DICT.get(bid_to, bid_to)}'
     logger.info(reply)
     return reply
 
@@ -302,7 +309,8 @@ def func_view(msg):
         reply = '```' + \
             'pid    : {0}\n'.format(p['pid']) + \
             'value  : {0:,}\n'.format(p['value']) + \
-            'type   : {0}\n'.format((BID_DICT[p['bid']] + ' ' + TYPE_DICT[p['type']]).strip()) + \
+            'bid    : {0}\n'.format(BID_DICT.get(p['bid'], p['bid'])) + \
+            'type   : {0}\n'.format(TYPE_DICT.get(p['type'], p['type'])) + \
             'time   : {0}\n'.format(datetime.fromtimestamp(p['time'])) + \
             'comment: {0}\n'.format(p['comment'] or '') + \
             '```'
@@ -387,8 +395,8 @@ def func_mod(msg):
     elif col == 'bid':
         old_bid = p['bid']
         new_bid = int(val)
-        if new_bid == 0:
-            return 'bid should be between 1 and 5'
+        if new_bid == 0 or new_bid not in BID_DICT:
+            return 'bid should be in BID_DICT and not be 0.'
         baldao.modify_minus({
             'bid'        : old_bid,
             'value'      : p['value'] * (-1),
@@ -400,6 +408,8 @@ def func_mod(msg):
             'last_update': now
         })
     elif col == 'type':
+        if int(val) not in TYPE_DICT:
+            return 'type should be in TYPE_DICT.'
         paydao.modify(pid, col, int(val))
     elif col == 'time':
         if re.match('^\d\d:?\d\d:?\d\d$', val):
