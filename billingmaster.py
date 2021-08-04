@@ -1,4 +1,5 @@
 import re
+import time
 from datetime import datetime, timedelta
 
 import log
@@ -34,9 +35,11 @@ def billing_reply(message):
         msg = msg[1:].strip()
         reply = func_del(msg)
     elif msg == '重新排序':
+        t0 = time.time()
         paydao.order_by_time()
+        t1 = time.time() - t0
         logger.info('order_by_time()')
-        reply = 'order_by_time() executed'
+        reply = 'order_by_time() executed\n{}s'.format(t1)
     elif msg == '余额':
         reply = check_balance()
     elif msg == '配置':

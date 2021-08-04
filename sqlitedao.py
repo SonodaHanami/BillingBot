@@ -176,15 +176,20 @@ class PaymentDao(SqliteDao):
 #                r += 1
 #
                 conn.execute('UPDATE payment set pid = pid + 65536')
-                conn.execute('''
-                    UPDATE payment
-                    SET pid =
-                    (SELECT rank FROM
-                      (SELECT
-                        row_number() OVER (ORDER BY time) AS rank,
-                        pid FROM payment)
-                     WHERE pid = payment.pid)'''
-                )
+                # conn.execute('''
+                #     UPDATE payment
+                #     SET pid =
+                #     (SELECT rank FROM
+                #       (SELECT
+                #         row_number() OVER (ORDER BY time) AS rank,
+                #         pid FROM payment)
+                #      WHERE pid = payment.pid)'''
+                # )
+                rank_pid = conn.execute('SELECT row_number() OVER (ORDER BY time) AS rank, pid FROM payment').fetchall()
+                for rp in rank_pid:
+                    conn.execute('UPDATE payment set pid = {} WHERE pid = {}'.format(rp[0], rp[1]))
+
+
             except (sqlite3.DatabaseError) as e:
                 logger.error(f'[ClanDao.order_by_time] {e}')
                 raise DatabaseError('修改记录顺序失败')
