@@ -4,7 +4,7 @@ import log
 import sys
 import tzlocal
 from billingmaster import billing_reply
-from config import ADMIN, TOKEN
+from config import ADMIN, CHANNEL, TOKEN
 
 ME = ADMIN
 logger = log.new_logger('BillingBot')
@@ -13,7 +13,7 @@ client = discord.Client()
 @client.event
 async def on_message(message):
     # Only works for ME
-    if message.author.id != ME:
+    if message.author.id != ME or message.channel.id != CHANNEL:
         return None
     reply = billing_reply(message)
     try:
