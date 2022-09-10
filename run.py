@@ -2,6 +2,7 @@ import discord
 import json
 import log
 import sys
+import tzlocal
 from billingmaster import billing_reply
 from config import ADMIN, TOKEN
 
@@ -29,5 +30,11 @@ async def on_message(message):
 @client.event
 async def on_ready():
     logger.info("Discord bot logged in as: %s" % client.user.name)
+
+try:
+    tzlocal.get_localzone()
+except:
+    print("无法获取系统时区，请将系统时区设置为北京/上海时区")
+    sys.exit()
 
 client.run(TOKEN)
