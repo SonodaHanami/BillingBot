@@ -44,6 +44,8 @@ def billing_reply(message):
         reply = check_balance()
     elif msg == '配置':
         reply = check_config()
+    elif msg == 'DATE':
+        reply = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     else:
         reply = None
 
