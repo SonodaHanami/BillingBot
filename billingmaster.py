@@ -201,7 +201,7 @@ def func_transfer(msg):
     value    = int(nums[0])
     bid_from = int(nums[1])
     bid_to   = int(nums[2])
-    comment  = re.sub('\d+', '', msg).strip()
+    comment  = re.sub('\d+', '', msg).strip() or f'转移 {bid_from} -> {bid_to}'
     if (bid_from == 0 or bid_from not in BID_DICT) or (bid_to == 0 or bid_to not in BID_DICT):
         return 'bid should be in BID_DICT and not be 0.'
     if bid_from == bid_to:
@@ -209,14 +209,14 @@ def func_transfer(msg):
     paydao.add({
         'value'      : value,
         'bid'        : bid_from,
-        'type'       : 0,
+        'type'       : 9,
         'time'       : now,
         'comment'    : comment,
     })
     paydao.add({
         'value'      : value * (-1),
         'bid'        : bid_to,
-        'type'       : 0,
+        'type'       : 9,
         'time'       : now,
         'comment'    : comment,
     })
