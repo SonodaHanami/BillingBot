@@ -11,11 +11,21 @@ cd BillingBot
 ```sh
 cp default-config.py config.py
 ```
-安装docker和docker-compose
-- https://docs.docker.com/engine/install/
-- https://docs.docker.com/compose/install/
-
-然后启动（debug去掉-d）
+安装screen
 ```sh
-docker-compose up -d 
+apt install screen
+```
+创建一个新的screen
+```sh
+screen -S billing
+```
+在screen中运行
+```sh
+python3 -u run.py
+```
+使用组合键`Ctrl-a d`离开screen
+
+再次回到这个screen
+```sh
+screen -r billing
 ```
