@@ -11,7 +11,6 @@ from config import ADMIN, CHANNEL, TOKEN, HELLO
 logger = log.new_logger('BillingBot')
 bot = discord.Bot()
 
-
 async def send_reply(message, reply):
     try:
         if reply is None:
@@ -27,18 +26,27 @@ async def send_reply(message, reply):
 # SLASH COMMAND
 
 @bot.slash_command()
-async def balance(message):
-    await message.respond(bm.check_balance())
-
-@bot.slash_command()
 async def show(message, target=''):
     await message.respond(f'查 {target}')
     await send_reply(message, bm.func_view(target))
 
-@bot.slash_command()
-async def pay(message, target=''):
-    await message.respond(f'记账 {target}')
-    await send_reply(message, bm.func_out(target))
+@bot.slash_command(description='/pay 数值 bid 类型 备注 [[yyyymmdd]hhmmss]')
+async def pay(
+    message,
+    value: discord.Option(int),
+    balance_id: discord.Option(int),
+    type_id: discord.Option(int),
+    comment,
+    time_: discord.Option(int)=0,
+):
+    res = f'记账 {value} {balance_id} {type_id} "{comment}"'
+    if time_:
+        res += f' {time_}'
+    await message.respond(res)
+    await send_reply(
+        message,
+        bm.func_out(value, balance_id, type_id, comment, time_)
+    )
 
 @bot.slash_command()
 async def get(message, target=''):
@@ -46,22 +54,17 @@ async def get(message, target=''):
     await send_reply(message, bm.func_in(target))
 
 @bot.slash_command()
-async def transfer(message, target=''):
+async def transfer(message, target):
     await message.respond(f'转移 {target}')
     await send_reply(message, bm.func_transfer(target))
 
 @bot.slash_command()
-async def modify(message, target=''):
+async def modify(message, target):
     await message.respond(f'改 {target}')
     await send_reply(message, bm.func_modify(target))
 
 @bot.slash_command()
-async def delete(message, target=''):
-    await message.respond(f'删 {target}')
-    await send_reply(message, bm.func_delete(target))
-
-@bot.slash_command()
-async def select(message, conditions=''):
+async def select(message, conditions):
     await message.respond(f'SELECT FROM PAYMENT WHERE {conditions};')
     await send_reply(message, bm.func_SELECT(conditions))
 

@@ -75,12 +75,13 @@ class PaymentDao(SqliteDao):
     def add(self, pm):
         with self._connect() as conn:
             try:
-                conn.execute(
+                ret = conn.execute(
                     '''
                     INSERT INTO {0} ({1}) VALUES (?, ?, ?, ?, ?, ?)
                     '''.format(self._table, self._columns),
                     (None, pm['value'], pm['bid'], pm['type'], pm['time'], pm['comment'])
                 )
+                return ret.lastrowid
             except (sqlite3.DatabaseError) as e:
                 logger.error(f'[PaymentDao.add] {e}')
                 raise DatabaseError('添加记录失败')

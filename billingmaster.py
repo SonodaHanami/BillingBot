@@ -82,58 +82,23 @@ def func_in(msg):
     return reply
 
 
-def func_out(msg):
-    usage = '使用方法：\n记账 数值 [bid] [类型] [备注]\n' + \
-            '记账 指定时间 数值 [bid] [类型] yyyymmddhhmmss [备注]'
-    now = int(datetime.now().timestamp())
-    nums = re.findall('\d+', msg)
-    if msg.startswith('指定时间'):
-        if len(nums) == 2:
-            value = int(nums[0])
-            bid   = 1
-            type  = 0
-        elif len(nums) == 3:
-            value = int(nums[0])
-            bid   = int(nums[1])
-            type  = 0
-        elif len(nums) == 4:
-            value = int(nums[0])
-            bid   = int(nums[1])
-            type  = int(nums[2])
-        else:
-            return usage
-        now = totimestamp(nums[len(nums) - 1])
-        if not now:
-            return usage
-        msg = msg[4:].strip()
+def func_out(value, bid, tid, comment, time_):
+    if time_:
+        now = totimestamp(time_)
     else:
-        if len(nums) == 1:
-            value = int(nums[0])
-            bid   = 1
-            type  = 0
-        elif len(nums) == 2:
-            value = int(nums[0])
-            bid   = int(nums[1])
-            type  = 0
-        elif len(nums) == 3:
-            value = int(nums[0])
-            bid   = int(nums[1])
-            type  = int(nums[2])
-        else:
-            return usage
+        now = int(datetime.now().timestamp())
     if bid == 0 or bid not in BID_DICT:
         return 'bid should be in BID_DICT and not be 0.'
-    if type not in TYPE_DICT:
-        return 'type should be in TYPE_DICT.'
-    comment = re.sub('\d+', '', msg).strip()
+    if tid not in TYPE_DICT:
+        return 'tid should be in TYPE_DICT.'
     if comment == '':
         comment = None
-    paydao.add({
+    lastrowid = paydao.add({
         'value'      : value,
         'bid'        : bid,
-        'type'       : type,
+        'type'       : tid,
         'time'       : now,
-        'comment'    : comment
+        'comment'    : comment.strip()
     })
     baldao.modify_minus({
         'bid'        : 0,
@@ -146,8 +111,8 @@ def func_out(msg):
         'last_update': now
     })
     reply = f'[{datetime.fromtimestamp(now)}] {value} ' + \
-            f'{BID_DICT.get(bid, bid)} {TYPE_DICT.get(type, type)} ' + \
-            f'{comment} added'
+            f'{BID_DICT.get(bid, bid)} {TYPE_DICT.get(tid, tid)} ' + \
+            f'{comment} added (#{lastrowid})'
     logger.info(reply)
     return reply
 
