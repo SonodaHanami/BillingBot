@@ -13,39 +13,41 @@ baldao = BalanceDao()
 
 def billing_reply(message):
     msg = message.content.strip()
-    if msg.startswith('收入'):
-        msg = msg[2:].strip()
-        reply = func_in(msg)
-    elif msg[0:2] in ['记账', '支出']:
-        msg = msg[2:].strip()
-        reply = func_out(msg)
-    elif msg.startswith('转移'):
-        msg = msg[2:].strip()
-        reply = func_transfer(msg)
-    elif msg.startswith('查'):
-        msg = msg[1:].strip()
-        reply = func_view(msg)
-    elif msg.startswith('SELECT '):
-        msg = msg[7:].strip()
-        reply = func_sel(msg)
-    elif msg.startswith('改'):
-        msg = msg[1:].strip()
-        reply = func_mod(msg)
-    elif msg.startswith('删'):
-        msg = msg[1:].strip()
-        reply = func_del(msg)
-    elif msg == '重新排序':
-        t0 = time.time()
-        paydao.order_by_time()
-        t1 = time.time() - t0
-        logger.info('order_by_time()')
-        reply = 'order_by_time() executed\n{}s'.format(t1)
-    elif msg == '余额':
-        reply = check_balance()
-    elif msg == '配置':
-        reply = check_config()
-    elif msg == 'DATE':
-        reply = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    if False:
+        pass
+    # elif msg.startswith('收入'):
+    #     msg = msg[2:].strip()
+    #     reply = func_in(msg)
+    # elif msg[0:2] in ['记账', '支出']:
+    #     msg = msg[2:].strip()
+    #     reply = func_out(msg)
+    # elif msg.startswith('转移'):
+    #     msg = msg[2:].strip()
+    #     reply = func_transfer(msg)
+    # elif msg.startswith('查'):
+    #     msg = msg[1:].strip()
+    #     reply = func_view(msg)
+    # elif msg.startswith('SELECT '):
+    #     msg = msg[7:].strip()
+    #     reply = func_sel(msg)
+    # elif msg.startswith('改'):
+    #     msg = msg[1:].strip()
+    #     reply = func_mod(msg)
+    # elif msg.startswith('删'):
+    #     msg = msg[1:].strip()
+    #     reply = func_del(msg)
+    # elif msg == '重新排序':
+    #     t0 = time.time()
+    #     paydao.order_by_time()
+    #     t1 = time.time() - t0
+    #     logger.info('order_by_time()')
+    #     reply = 'order_by_time() executed\n{}s'.format(t1)
+    # elif msg == '余额':
+    #     reply = check_balance()
+    # elif msg == '配置':
+    #     reply = check_config()
+    # elif msg == 'DATE':
+    #     reply = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     else:
         reply = None
 
@@ -428,3 +430,9 @@ def func_mod(msg):
 def func_del(msg):
     return '...'
 
+def order_by_time():
+    t0 = time.time()
+    paydao.order_by_time()
+    t1 = time.time() - t0
+    logger.info(f'order_by_time() {t1:.2f}s')
+    return f'重新排序完成，耗时{t1:.2f}s'

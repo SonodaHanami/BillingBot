@@ -4,25 +4,24 @@ import log
 import sys
 import time
 import tzlocal
-from billingmaster import billing_reply
+
+import billingmaster as bm
 from config import ADMIN, CHANNEL, TOKEN
 
-ME = ADMIN
 logger = log.new_logger('BillingBot')
-client = discord.Client()
+bot = discord.Bot()
 message_log = []
 
-@client.event
-async def on_message(message):
-    # Only works for ME
-    if message.author.id != ME or message.channel.id != CHANNEL:
-        return None
+# async def message_logging(func):
+#     global message_log
+#     logger.info(f'decorator message_logging is decorating {func}')
+#     def decorator(*args, **kwargs):
+#         message_log.append(kwargs['message'])
+#         return func
+#     return decorator
+
+async def send_reply(message, reply):
     global message_log
-    message_log.append(message)
-    if message.content.strip() == '/clear' or message.content.strip() == 'CLEAR':
-        await delete_message(message)
-        return
-    reply = billing_reply(message)
     try:
         if reply is None:
             return None
@@ -37,30 +36,128 @@ async def on_message(message):
         result = await message.channel.send('出错了1551')
         message_log.append(result.id)
 
-async def delete_message(message):
+# SLASH COMMAND
+
+@bot.slash_command()
+async def balance(message):
     global message_log
-    m = await message.channel.send('正在清理记录...')
-    message_log.append(m)
+    message_log.append(message)
+    await message.respond(bm.check_balance())
+    # await send_reply(message, bm.check_balance())
+
+@bot.slash_command()
+async def show(message, target=''):
+    # Only works for ME
+    # if message.author.id != ME or message.channel.id != CHANNEL:
+    #     return None
+    global message_log
+    message_log.append(message)
+    await message.respond(f'查 {target}')
+    await send_reply(message, bm.func_view(target))
+
+@bot.slash_command()
+async def pay(message, target=''):
+    global message_log
+    message_log.append(message)
+    await message.respond(f'记账 {target}')
+    await send_reply(message, bm.func_out(target))
+
+@bot.slash_command()
+async def get(message, target=''):
+    global message_log
+    message_log.append(message)
+    await message.respond(f'收入 {target}')
+    await send_reply(message, bm.func_in(target))
+
+@bot.slash_command()
+async def transfer(message, target=''):
+    global message_log
+    message_log.append(message)
+    await message.respond(f'转移 {target}')
+    await send_reply(message, bm.func_transfer(target))
+
+@bot.slash_command()
+async def modify(message, target=''):
+    global message_log
+    message_log.append(message)
+    await message.respond(f'改 {target}')
+    await send_reply(message, bm.func_mod(target))
+
+@bot.slash_command()
+async def delete(message, target=''):
+    global message_log
+    message_log.append(message)
+    await message.respond(f'删 {target}')
+    await send_reply(message, bm.func_del(target))
+
+@bot.slash_command()
+async def select(message, conditions=''):
+    global message_log
+    message_log.append(message)
+    await message.respond(f'SELECT FROM PAYMENT WHERE {target};')
+    await send_reply(message, bm.func_sel(conditions))
+
+
+# USER COMMAND
+
+@bot.user_command(name='查询余额')
+async def balance_app(message, user):
+    global message_log
+    message_log.append(message)
+    await message.respond(bm.check_balance())
+
+@bot.user_command(name='查询配置')
+async def setting_app(message, user):
+    global message_log
+    message_log.append(message)
+    await message.respond(f'正在查询配置')
+    await send_reply(message, bm.check_config())
+
+@bot.user_command(name='查询时间')
+async def date(message, user):
+    global message_log
+    message_log.append(message)
+    await message.respond(datetime.now().strftime('现在是%Y-%m-%d %H:%M:%S'))
+
+@bot.user_command(name='重新排序')
+async def re_order(message, user):
+    global message_log
+    message_log.append(message)
+    await message.respond('正在重新排序...')
+    await send_reply(message, bm.order_by_time())
+
+@bot.user_command(name='清理记录')
+async def clear_message_log(message, user):
+    global message_log
+    message_log.append(message)
+    await message.respond('正在清理记录...')
+    channel = message.channel
     cnt = len(message_log)
     while len(message_log):
         m = message_log.pop(0)
-        print(f'delete message {m.id}')
-        await m.delete()
-        time.sleep(0.5)
-    m = await message.channel.send(f'清理记录完成 {cnt}')
-    time.sleep(5)
-    print(f'delete message {m.id}')
-    await m.delete()
+        try:
+            await m.delete()
+        except Exception as e:
+            logger.error(e)
+        time.sleep(0.1)
+    logger.info(f'delete_message {cnt}')
+    m = await channel.send('你要多少bot正在为你记账')
+    message_log.append(m)
 
 
-@client.event
+@bot.event
 async def on_ready():
-    logger.info("Discord bot logged in as: %s" % client.user.name)
+    logger.info("Discord bot logged in as: %s" % bot.user.name)
+
+@bot.event
+async def on_message(message):
+    global message_log
+    message_log.append(message)
 
 try:
     tzlocal.get_localzone()
 except:
-    print("无法获取系统时区，请将系统时区设置为北京/上海时区")
+    logger.error("无法获取系统时区，请将系统时区设置为北京/上海时区")
     sys.exit()
 
-client.run(TOKEN)
+bot.run(TOKEN)
