@@ -53,17 +53,17 @@ async def transfer(message, target=''):
 @bot.slash_command()
 async def modify(message, target=''):
     await message.respond(f'改 {target}')
-    await send_reply(message, bm.func_mod(target))
+    await send_reply(message, bm.func_modify(target))
 
 @bot.slash_command()
 async def delete(message, target=''):
     await message.respond(f'删 {target}')
-    await send_reply(message, bm.func_del(target))
+    await send_reply(message, bm.func_delete(target))
 
 @bot.slash_command()
 async def select(message, conditions=''):
-    await message.respond(f'SELECT FROM PAYMENT WHERE {target};')
-    await send_reply(message, bm.func_sel(conditions))
+    await message.respond(f'SELECT FROM PAYMENT WHERE {conditions};')
+    await send_reply(message, bm.func_SELECT(conditions))
 
 
 # USER COMMAND

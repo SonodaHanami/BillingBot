@@ -11,50 +11,6 @@ logger = log.new_logger('BillingMaster')
 paydao = PaymentDao()
 baldao = BalanceDao()
 
-def billing_reply(message):
-    msg = message.content.strip()
-    if False:
-        pass
-    # elif msg.startswith('收入'):
-    #     msg = msg[2:].strip()
-    #     reply = func_in(msg)
-    # elif msg[0:2] in ['记账', '支出']:
-    #     msg = msg[2:].strip()
-    #     reply = func_out(msg)
-    # elif msg.startswith('转移'):
-    #     msg = msg[2:].strip()
-    #     reply = func_transfer(msg)
-    # elif msg.startswith('查'):
-    #     msg = msg[1:].strip()
-    #     reply = func_view(msg)
-    # elif msg.startswith('SELECT '):
-    #     msg = msg[7:].strip()
-    #     reply = func_sel(msg)
-    # elif msg.startswith('改'):
-    #     msg = msg[1:].strip()
-    #     reply = func_mod(msg)
-    # elif msg.startswith('删'):
-    #     msg = msg[1:].strip()
-    #     reply = func_del(msg)
-    # elif msg == '重新排序':
-    #     t0 = time.time()
-    #     paydao.order_by_time()
-    #     t1 = time.time() - t0
-    #     logger.info('order_by_time()')
-    #     reply = 'order_by_time() executed\n{}s'.format(t1)
-    # elif msg == '余额':
-    #     reply = check_balance()
-    # elif msg == '配置':
-    #     reply = check_config()
-    # elif msg == 'DATE':
-    #     reply = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    else:
-        reply = None
-
-    if reply:
-        return reply
-
-
 def check_balance():
     balance = baldao.find_all()
     replys = [
@@ -333,7 +289,7 @@ def func_view(msg):
     return reply
 
 
-def func_sel(msg):
+def func_SELECT(msg):
     pays = paydao.select(msg)
     reply = func_output_pays(pays)
     return reply
@@ -367,7 +323,7 @@ def func_output_pays(pays):
     return replys
 
 
-def func_mod(msg):
+def func_modify(msg):
     logger.info(f'func_mod({msg})')
     usage = '改 pid column value'
     now = int(datetime.now().timestamp())
@@ -427,7 +383,7 @@ def func_mod(msg):
     paydao.modify(pid, col, val)
     return '修改成功\n' + func_view(pid)
 
-def func_del(msg):
+def func_delete(msg):
     return '...'
 
 def datetime_now():
