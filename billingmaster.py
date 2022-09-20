@@ -430,6 +430,9 @@ def func_mod(msg):
 def func_del(msg):
     return '...'
 
+def datetime_now():
+    return datetime.now().strftime('现在是%Y-%m-%d %H:%M:%S')
+
 def order_by_time():
     t0 = time.time()
     paydao.order_by_time()

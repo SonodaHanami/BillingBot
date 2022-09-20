@@ -117,7 +117,7 @@ async def setting_app(message, user):
 async def date(message, user):
     global message_log
     message_log.append(message)
-    await message.respond(datetime.now().strftime('现在是%Y-%m-%d %H:%M:%S'))
+    await message.respond(bm.datetime_now())
 
 @bot.user_command(name='重新排序')
 async def re_order(message, user):
