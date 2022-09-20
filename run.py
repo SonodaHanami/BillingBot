@@ -10,11 +10,9 @@ from config import ADMIN, CHANNEL, TOKEN, HELLO
 
 logger = log.new_logger('BillingBot')
 bot = discord.Bot()
-message_log = []
 
 
 async def send_reply(message, reply):
-    global message_log
     try:
         if reply is None:
             return None
@@ -31,13 +29,9 @@ async def send_reply(message, reply):
 @bot.slash_command()
 async def balance(message):
     await message.respond(bm.check_balance())
-    # await send_reply(message, bm.check_balance())
 
 @bot.slash_command()
 async def show(message, target=''):
-    # Only works for ME
-    # if message.author.id != ME or message.channel.id != CHANNEL:
-    #     return None
     await message.respond(f'查 {target}')
     await send_reply(message, bm.func_view(target))
 
@@ -96,9 +90,10 @@ async def re_order(message, user):
 async def clear_message_log(message, user):
     await message.respond('正在清理记录...')
     channel = message.channel
-    cnt = len(message_log)
-    while len(message_log):
-        m = message_log.pop(0)
+    messages = await channel.history(limit=200).flatten()
+    cnt = len(messages)
+    while len(messages):
+        m = messages.pop(-1)
         try:
             await m.delete()
         except Exception as e:
@@ -116,10 +111,6 @@ async def on_ready():
     if HELLO:
         await channel.send(HELLO)
 
-@bot.event
-async def on_message(message):
-    global message_log
-    message_log.append(message)
 
 try:
     tzlocal.get_localzone()
