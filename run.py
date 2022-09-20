@@ -6,7 +6,7 @@ import time
 import tzlocal
 
 import billingmaster as bm
-from config import ADMIN, CHANNEL, TOKEN
+from config import ADMIN, CHANNEL, TOKEN, HELLO
 
 logger = log.new_logger('BillingBot')
 bot = discord.Bot()
@@ -108,12 +108,16 @@ async def clear_message_log(message, user):
             logger.error(e)
         time.sleep(0.1)
     logger.info(f'delete_message {cnt}')
-    m = await channel.send('你要多少bot正在为你记账')
+    if HELLO:
+        await channel.send(HELLO)
 
 
 @bot.event
 async def on_ready():
     logger.info("Discord bot logged in as: %s" % bot.user.name)
+    channel = bot.get_channel(CHANNEL)
+    if HELLO:
+        await channel.send(HELLO)
 
 @bot.event
 async def on_message(message):
