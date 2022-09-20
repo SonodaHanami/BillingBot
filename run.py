@@ -19,15 +19,12 @@ async def send_reply(message, reply):
         if reply is None:
             return None
         elif isinstance(reply, str):
-            result = await message.channel.send(reply)
-            message_log.append(result)
+            await message.channel.send(reply)
         elif isinstance(reply, list):
             for r in reply:
-                result = await message.channel.send(r)
-                message_log.append(result)
+                await message.channel.send(r)
     except:
-        result = await message.channel.send('出错了1551')
-        message_log.append(result.id)
+        await message.channel.send('出错了1551')
 
 # SLASH COMMAND
 
