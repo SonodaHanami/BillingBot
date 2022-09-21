@@ -25,7 +25,7 @@ async def send_reply(message, reply):
 
 # SLASH COMMAND
 
-@bot.slash_command()
+@bot.slash_command(description='/show [目标]')
 async def show(message, target=''):
     await message.respond(f'查 {target}')
     await send_reply(message, bm.func_view(target))
@@ -50,7 +50,7 @@ async def add(
     await message.respond(res)
     await send_reply(
         message,
-        bm.func_out(value, balance_id, type_id, comment, time_)
+        bm.func_add(value, balance_id, type_id, comment, time_)
     )
 
 @bot.slash_command(description='/transfer 数值 from to 备注 [[yyyymmdd]hhmmss]')
@@ -75,12 +75,31 @@ async def transfer(
         bm.func_transfer(value, bid_from, bid_to, comment, time_)
     )
 
-@bot.slash_command()
-async def modify(message, target):
-    await message.respond(f'改 {target}')
-    await send_reply(message, bm.func_modify(target))
+@bot.slash_command(description='/modify 编号 [数值] [bid] [类型] [备注] [[yyyymmdd]hhmmss]')
+async def modify(
+    message,
+    payment_id: discord.Option(int, description='记录编号'),
+    value:      discord.Option(int, description='数值')         = None,
+    balance_id: discord.Option(int, description='balance_id')   = None,
+    type_id:    discord.Option(int, description='类型')         = None,
+    comment:    discord.Option(str, description='备注说明')     = None,
+    time_:      discord.Option(int, description='[[YYYYmmdd]HHMMSS]') = None,
+):
+    res = '改 #{}: {} {} {} {} {}'.format(
+        payment_id,
+        f'value {value}' if value else '',
+        f'bid {balance_id}' if balance_id else '',
+        f'type_id {type_id}' if type_id else '',
+        f'comment {comment}' if comment else '',
+        f'time_ {time_}' if time_ else '',
+    )
+    await message.respond(res)
+    await send_reply(
+        message,
+        bm.func_modify(payment_id, value, balance_id, type_id, comment, time_)
+    )
 
-@bot.slash_command()
+@bot.slash_command(description='/select SQL_WHERE_CLAUSE')
 async def select(message, conditions):
     await message.respond(f'SELECT FROM PAYMENT WHERE {conditions};')
     await send_reply(message, bm.func_SELECT(conditions))

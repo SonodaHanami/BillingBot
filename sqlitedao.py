@@ -237,10 +237,10 @@ class BalanceDao(SqliteDao):
     @staticmethod
     def row2item(r):
         return {
-              'bid': r[0],
-             'name': r[1],
-            'value': r[2],
-      'last_update': r[3]
+            'bid':          r[0],
+            'name':         r[1],
+            'value':        r[2],
+            'last_update':  r[3]
         } if r else None
 
 
