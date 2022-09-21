@@ -47,8 +47,10 @@ def func_add(value, bid, tid, comment, time_):
         now = totimestamp(time_)
     else:
         now = int(datetime.now().timestamp())
-    if bid == 0 or bid not in BID_DICT:
-        return 'bid should be in BID_DICT and not be 0.'
+    if bid == 0:
+        return 'bid should not be 0.'
+    if bid not in BID_DICT:
+        return 'bid should be in BID_DICT.'
     if tid not in TYPE_DICT:
         return 'tid should be in TYPE_DICT.'
     if comment == '':
@@ -82,31 +84,30 @@ def func_add(value, bid, tid, comment, time_):
     return reply
 
 
-def func_transfer(msg):
-    usage = '使用方法：\n转移 数值 from to [备注]'
-    now = int(datetime.now().timestamp())
-    nums = re.findall('\d+', msg)
-    if len(nums) != 3:
-        return usage
-    value    = int(nums[0])
-    bid_from = int(nums[1])
-    bid_to   = int(nums[2])
-    comment  = re.sub('\d+', '', msg).strip() or f'转移 {bid_from} -> {bid_to}'
-    if (bid_from == 0 or bid_from not in BID_DICT) or (bid_to == 0 or bid_to not in BID_DICT):
-        return 'bid should be in BID_DICT and not be 0.'
+def func_transfer(value, bid_from, bid_to, comment, time_):
+    if time_:
+        now = totimestamp(time_)
+    else:
+        now = int(datetime.now().timestamp())
+    if comment == '':
+        comment = f'转移 {bid_from} -> {bid_to}'
+    if bid_from == 0 or bid_to == 0:
+        return 'bid should not be 0.'
+    if bid_from not in BID_DICT or bid_to not in BID_DICT:
+        return 'bid should be in BID_DICT.'
     if bid_from == bid_to:
         return 'same bid'
-    paydao.add({
+    lastrowid_1 = paydao.add({
         'value'      : value,
         'bid'        : bid_from,
-        'type'       : 9,
+        'type'       : 99,
         'time'       : now,
-        'comment'    : comment,
+        'comment'    : comment.strip(),
     })
-    paydao.add({
+    lastrowid_2 = paydao.add({
         'value'      : value * (-1),
         'bid'        : bid_to,
-        'type'       : 9,
+        'type'       : -99,
         'time'       : now,
         'comment'    : comment,
     })
@@ -120,9 +121,15 @@ def func_transfer(msg):
         'value'      : value * (-1),
         'last_update': now
     })
-    reply = f'[{datetime.fromtimestamp(now)}] transfer {value} ' + \
-            f'from {BID_DICT.get(bid_from, bid_from)} ' + \
-            f'to {BID_DICT.get(bid_to, bid_to)}'
+    reply = '[{}] transfer {} from {} to {} "{}" added (#{}, #{})'.format(
+        datetime.fromtimestamp(now),
+        value,
+        BID_DICT.get(bid_from, bid_from),
+        BID_DICT.get(bid_to, bid_to),
+        comment,
+        lastrowid_1,
+        lastrowid_2,
+    )
     logger.info(reply)
     return reply
 

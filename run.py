@@ -39,19 +39,41 @@ async def add(
     comment:    discord.Option(str, description='备注说明'),
     time_:      discord.Option(int, description='[[YYYYmmdd]HHMMSS]') = 0,
 ):
-    res = f'记账 {value} {balance_id} {type_id} "{comment}"'
-    if time_:
-        res += f' {time_}'
+    res = '{} {} {} {} "{}"{}'.format(
+        '支出' if value > 0 else '收入',
+        value,
+        balance_id,
+        type_id,
+        comment,
+        f' {time_}' if time_ else '',
+    )
     await message.respond(res)
     await send_reply(
         message,
         bm.func_out(value, balance_id, type_id, comment, time_)
     )
 
-@bot.slash_command()
-async def transfer(message, target):
-    await message.respond(f'转移 {target}')
-    await send_reply(message, bm.func_transfer(target))
+@bot.slash_command(description='/transfer 数值 from to 备注 [[yyyymmdd]hhmmss]')
+async def transfer(
+    message,
+    value:      discord.Option(int, description='数值'),
+    bid_from:   discord.Option(int, description='balance_id 转移来源'),
+    bid_to:     discord.Option(int, description='balance_id 转移目标'),
+    comment:    discord.Option(str, description='备注说明'),
+    time_:      discord.Option(int, description='[[YYYYmmdd]HHMMSS]') = 0,
+):
+    res = '转移 {} from {} to {} "{}"{}'.format(
+        value,
+        bid_from,
+        bid_to,
+        comment,
+        f' {time_}' if time_ else '',
+    )
+    await message.respond(res)
+    await send_reply(
+        message,
+        bm.func_transfer(value, bid_from, bid_to, comment, time_)
+    )
 
 @bot.slash_command()
 async def modify(message, target):
