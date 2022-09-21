@@ -3,7 +3,7 @@ import time
 from datetime import datetime, timedelta
 
 import log
-from config import BID_DICT, TYPE_DICT
+from config import BALANCE_DICT, TYPE_DICT, TRANSFER_TYPE
 from utils import totimestamp
 from sqlitedao import BalanceDao, PaymentDao
 
@@ -26,9 +26,9 @@ def check_balance():
 def check_config():
     replys = []
 
-    reply = '```BID_DICT:\n'
-    for k in BID_DICT.keys():
-        reply += f'{k} {BID_DICT[k]}\n'
+    reply = '```BALANCE_DICT:\n'
+    for k in BALANCE_DICT.keys():
+        reply += f'{k} {BALANCE_DICT[k]}\n'
     reply = reply[:-1] + '```'
     replys.append(reply)
 
@@ -49,8 +49,8 @@ def func_add(value, balance_id, type_id, comment, time_):
         now = int(datetime.now().timestamp())
     if balance_id == 0:
         return 'balance_id should not be 0.'
-    if balance_id not in BID_DICT:
-        return 'balance_id should be in BID_DICT.'
+    if balance_id not in BALANCE_DICT:
+        return 'balance_id should be in BALANCE_DICT.'
     if type_id not in TYPE_DICT:
         return 'type_id should be in TYPE_DICT.'
     if comment == '':
@@ -75,7 +75,7 @@ def func_add(value, balance_id, type_id, comment, time_):
     reply = '[{}] {} {} {} {} added (#{})'.format(
         datetime.fromtimestamp(now),
         value,
-        BID_DICT.get(balance_id, balance_id),
+        BALANCE_DICT.get(balance_id, balance_id),
         TYPE_DICT.get(type_id, type_id),
         comment,
         lastrowid
@@ -93,21 +93,21 @@ def func_transfer(value, bid_from, bid_to, comment, time_):
         comment = f'转移 {bid_from} -> {bid_to}'
     if bid_from == 0 or bid_to == 0:
         return 'balance_id should not be 0.'
-    if bid_from not in BID_DICT or bid_to not in BID_DICT:
-        return 'balance_id should be in BID_DICT.'
+    if bid_from not in BALANCE_DICT or bid_to not in BALANCE_DICT:
+        return 'balance_id should be in BALANCE_DICT.'
     if bid_from == bid_to:
         return 'same balance_id'
     lastrowid_1 = paydao.add({
         'value'      : value,
         'bid'        : bid_from,
-        'type'       : 99,
+        'type'       : TRANSFER_TYPE,
         'time'       : now,
         'comment'    : comment.strip(),
     })
     lastrowid_2 = paydao.add({
         'value'      : value * (-1),
         'bid'        : bid_to,
-        'type'       : -99,
+        'type'       : -TRANSFER_TYPE,
         'time'       : now,
         'comment'    : comment,
     })
@@ -124,8 +124,8 @@ def func_transfer(value, bid_from, bid_to, comment, time_):
     reply = '[{}] transfer {} from {} to {} "{}" added (#{}, #{})'.format(
         datetime.fromtimestamp(now),
         value,
-        BID_DICT.get(bid_from, bid_from),
-        BID_DICT.get(bid_to, bid_to),
+        BALANCE_DICT.get(bid_from, bid_from),
+        BALANCE_DICT.get(bid_to, bid_to),
         comment,
         lastrowid_1,
         lastrowid_2,
@@ -209,7 +209,7 @@ def func_view(msg):
         reply = '```' + \
             'pid    : {0}\n'.format(p['pid']) + \
             'value  : {0:,}\n'.format(p['value']) + \
-            'balance: {0}\n'.format(BID_DICT.get(p['bid'], p['bid'])) + \
+            'balance: {0}\n'.format(BALANCE_DICT.get(p['bid'], p['bid'])) + \
             'type   : {0}\n'.format(TYPE_DICT.get(p['type'], p['type'])) + \
             'time   : {0}\n'.format(datetime.fromtimestamp(p['time'])) + \
             'comment: {0}\n'.format(p['comment'] or '') + \
@@ -296,8 +296,8 @@ def func_modify(payment_id, value, balance_id, type_id, comment, time_):
         new_bid = int(balance_id)
         if new_bid == 0:
             return 'balance_id should not be 0.'
-        if new_bid not in BID_DICT:
-            return 'balance_id should be in BID_DICT.'
+        if new_bid not in BALANCE_DICT:
+            return 'balance_id should be in BALANCE_DICT.'
         baldao.modify_minus({
             'bid'        : old_bid,
             'value'      : p['value'] * (-1),
