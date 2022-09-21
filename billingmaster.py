@@ -89,7 +89,7 @@ def func_transfer(value, bid_from, bid_to, comment, time_):
         now = totimestamp(str(time_))
     else:
         now = int(datetime.now().timestamp())
-    if comment == '':
+    if comment is None:
         comment = f'转移 {bid_from} -> {bid_to}'
     if bid_from == 0 or bid_to == 0:
         return 'balance_id should not be 0.'

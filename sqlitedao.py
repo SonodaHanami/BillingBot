@@ -50,12 +50,12 @@ class PaymentDao(SqliteDao):
             table='payment',
             columns='pid, value, bid, type, time, comment',
             fields='''
-            pid INTEGER PRIMARY KEY AUTOINCREMENT,
-            value INT NOT NULL,
-            bid INT NOT NULL,
-            type INT NOT NULL,
-            time INT NOT NULL,
-            comment VARCHAR (30)
+            pid   INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            value INTEGER NOT NULL,
+            bid   INTEGER NOT NULL,
+            type  INTEGER NOT NULL,
+            time  INTEGER NOT NULL,
+            comment  TEXT NOT NULL
             ''')
         logger.info('PaymentDao Initialized')
 
@@ -213,10 +213,10 @@ class BalanceDao(SqliteDao):
             table='balance',
             columns='bid, name, value, last_update',
             fields='''
-            bid  INT PRIMARY KEY,
-            name varchar(30) NOT NULL,
-            value        INT NOT NULL,
-            last_update  INT NOT NULL
+            bid          INTEGER  NOT NULL PRIMARY KEY,
+            name         TEXT     NOT NULL,
+            value        INTEGER  NOT NULL,
+            last_update  INTEGER  NOT NULL
             ''')
         from config import BALANCE_DICT
         for bid in BALANCE_DICT.keys():

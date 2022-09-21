@@ -53,13 +53,13 @@ async def add(
         bm.func_add(value, balance_id, type_id, comment, time_)
     )
 
-@bot.slash_command(description='/transfer 数值 from to 备注 [[yyyymmdd]hhmmss]')
+@bot.slash_command(description='/transfer 数值 from to [备注] [[yyyymmdd]hhmmss]')
 async def transfer(
     message,
     value:      discord.Option(int, description='数值'),
     bid_from:   discord.Option(int, description='balance_id 转移来源'),
     bid_to:     discord.Option(int, description='balance_id 转移目标'),
-    comment:    discord.Option(str, description='备注说明'),
+    comment:    discord.Option(str, description='备注说明') = None,
     time_:      discord.Option(int, description='[[YYYYmmdd]HHMMSS]') = 0,
 ):
     res = '转移 {} from {} to {} "{}"{}'.format(
