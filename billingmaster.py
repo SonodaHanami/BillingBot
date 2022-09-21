@@ -44,7 +44,7 @@ def check_config():
 
 def func_add(value, balance_id, type_id, comment, time_):
     if time_:
-        now = totimestamp(time_)
+        now = totimestamp(str(time_))
     else:
         now = int(datetime.now().timestamp())
     if balance_id == 0:
@@ -86,7 +86,7 @@ def func_add(value, balance_id, type_id, comment, time_):
 
 def func_transfer(value, bid_from, bid_to, comment, time_):
     if time_:
-        now = totimestamp(time_)
+        now = totimestamp(str(time_))
     else:
         now = int(datetime.now().timestamp())
     if comment == '':
@@ -275,9 +275,7 @@ def func_modify(payment_id, value, balance_id, type_id, comment, time_):
     p = paydao.find_one(payment_id)
     if not p:
         return 'no record'
-    p_view_before = func_view(payment_id)
-    if str(p[col]) == val:
-        return 'same value'
+    p_view_before = func_view(str(payment_id))
     if value is not None:
         delta = int(value) - int(p['value'])
         baldao.modify_minus({
@@ -291,6 +289,7 @@ def func_modify(payment_id, value, balance_id, type_id, comment, time_):
             'last_update': now
         })
         p['value'] = int(value)
+        paydao.modify(payment_id, 'value', int(value))
     if balance_id is not None:
         old_bid = p['bid']
         new_bid = int(balance_id)
@@ -309,6 +308,7 @@ def func_modify(payment_id, value, balance_id, type_id, comment, time_):
             'last_update': now
         })
         p['bid'] = new_bid
+        paydao.modify(payment_id, 'bid', int(new_bid))
     if type_id is not None:
         if int(type_id) not in TYPE_DICT:
             return 'type_id should be in TYPE_DICT.'
@@ -317,11 +317,11 @@ def func_modify(payment_id, value, balance_id, type_id, comment, time_):
         new_time = str(time_)
         if re.match('^\d\d:?\d\d:?\d\d$', new_time):
             new_time = str(datetime.fromtimestamp(p['time']))[0:11] + new_time
-        new_time = totimestamp(new_time)
+        new_time = totimestamp(str(new_time))
         paydao.modify(payment_id, 'time', new_time)
     if comment is not None:
         paydao.modify(payment_id, 'comment', comment)
-    return '修改前：\n' + p_view_before + '\n修改后：\n' + func_view(payment_id)
+    return '修改前：\n' + p_view_before + '\n修改后：\n' + func_view(str(payment_id))
 
 def func_delete(msg):
     return '...'
