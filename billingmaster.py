@@ -42,47 +42,7 @@ def check_config():
     return replys
 
 
-def func_in(msg):
-    usage = '使用方法：\n收入 数值 [bid=1] [备注]'
-    now = int(datetime.now().timestamp())
-    nums = re.findall('\d+', msg)
-    if len(nums) == 0 or len(nums) > 2:
-        return usage
-    elif len(nums) == 1:
-        value = int(nums[0])
-        bid  = 1
-    elif len(nums) == 2:
-        value = int(nums[0])
-        bid  = int(nums[1])
-    if bid == 0 or bid not in BID_DICT:
-        return 'bid should be in BID_DICT and not be 0.'
-    comment = re.sub('\d+', '', msg).strip()
-    if comment == '':
-        comment = None
-    paydao.add({
-        'value'      : value * (-1),
-        'bid'        : bid,
-        'type'       : 0,
-        'time'       : now,
-        'comment'    : comment
-    })
-    baldao.modify_minus({
-        'bid'        : 0,
-        'value'      : value * (-1),
-        'last_update': now
-    })
-    baldao.modify_minus({
-        'bid'        : bid,
-        'value'      : value * (-1),
-        'last_update': now
-    })
-    reply = f'[{datetime.fromtimestamp(now)}] -{value} ' + \
-            f'{BID_DICT.get(bid, bid)} {comment} added'
-    logger.info(reply)
-    return reply
-
-
-def func_out(value, bid, tid, comment, time_):
+def func_add(value, bid, tid, comment, time_):
     if time_:
         now = totimestamp(time_)
     else:
@@ -110,9 +70,14 @@ def func_out(value, bid, tid, comment, time_):
         'value'      : value,
         'last_update': now
     })
-    reply = f'[{datetime.fromtimestamp(now)}] {value} ' + \
-            f'{BID_DICT.get(bid, bid)} {TYPE_DICT.get(tid, tid)} ' + \
-            f'{comment} added (#{lastrowid})'
+    reply = '[{}] {} {} {} {} added (#{})'.format(
+        datetime.fromtimestamp(now),
+        value,
+        BID_DICT.get(bid, bid),
+        TYPE_DICT.get(tid, tid),
+        comment,
+        lastrowid
+    )
     logger.info(reply)
     return reply
 

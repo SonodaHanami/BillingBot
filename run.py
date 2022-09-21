@@ -30,14 +30,14 @@ async def show(message, target=''):
     await message.respond(f'查 {target}')
     await send_reply(message, bm.func_view(target))
 
-@bot.slash_command(description='/pay 数值 bid 类型 备注 [[yyyymmdd]hhmmss]')
-async def pay(
+@bot.slash_command(description='/add 数值 bid 类型 备注 [[yyyymmdd]hhmmss]')
+async def add(
     message,
-    value: discord.Option(int),
-    balance_id: discord.Option(int),
-    type_id: discord.Option(int),
-    comment,
-    time_: discord.Option(int)=0,
+    value:      discord.Option(int, description='数值'),
+    balance_id: discord.Option(int, description='balance_id'),
+    type_id:    discord.Option(int, description='类型'),
+    comment:    discord.Option(str, description='备注说明'),
+    time_:      discord.Option(int, description='[[YYYYmmdd]HHMMSS]') = 0,
 ):
     res = f'记账 {value} {balance_id} {type_id} "{comment}"'
     if time_:
@@ -47,11 +47,6 @@ async def pay(
         message,
         bm.func_out(value, balance_id, type_id, comment, time_)
     )
-
-@bot.slash_command()
-async def get(message, target=''):
-    await message.respond(f'收入 {target}')
-    await send_reply(message, bm.func_in(target))
 
 @bot.slash_command()
 async def transfer(message, target):
