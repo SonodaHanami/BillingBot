@@ -33,7 +33,7 @@ class SqliteDao(object):
 
 
     def _create_table(self):
-        sql = "CREATE TABLE IF NOT EXISTS {0} ({1})".format(self._table, self._fields)
+        sql = 'CREATE TABLE IF NOT EXISTS {0} ({1})'.format(self._table, self._fields)
         with self._connect() as conn:
             conn.execute(sql)
 
@@ -189,6 +189,7 @@ class PaymentDao(SqliteDao):
                 rank_pid = conn.execute('SELECT row_number() OVER (ORDER BY time) AS rank, pid FROM payment').fetchall()
                 for rp in rank_pid:
                     conn.execute('UPDATE payment set pid = {} WHERE pid = {}'.format(rp[0], rp[1]))
+                conn.execute('UPDATE SQLITE_SEQUENCE SET SEQ=0 WHERE NAME=\'payment\'')
 
 
             except (sqlite3.DatabaseError) as e:
