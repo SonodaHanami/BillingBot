@@ -4,6 +4,7 @@ import log
 import sys
 import time
 import tzlocal
+from discord.ext import tasks
 
 import billingmaster as bm
 from config import ADMIN, CHANNEL, TOKEN, HELLO
@@ -126,9 +127,12 @@ async def re_order(message, user):
     await send_reply(message, bm.order_by_time())
 
 @bot.user_command(name='清理记录')
-async def clear_message_log(message, user):
+async def clear_message_command(message, user):
     await message.respond('正在清理记录...')
-    channel = message.channel
+    await clear_message()
+
+async def clear_message():
+    channel = bot.get_channel(CHANNEL)
     messages = await channel.history(limit=200).flatten()
     cnt = len(messages)
     while len(messages):
@@ -138,17 +142,18 @@ async def clear_message_log(message, user):
         except Exception as e:
             logger.error(e)
         time.sleep(0.1)
-    logger.info(f'delete_message {cnt}')
+    logger.info(f'clear_message {cnt}')
     if HELLO:
         await channel.send(HELLO)
 
+@tasks.loop(hours=12)
+async def clear_message_task():
+    await clear_message()
 
 @bot.event
 async def on_ready():
     logger.info("Discord bot logged in as: %s" % bot.user.name)
-    channel = bot.get_channel(CHANNEL)
-    if HELLO:
-        await channel.send(HELLO)
+    clear_message_task.start()
 
 
 try:

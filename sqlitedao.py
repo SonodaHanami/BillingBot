@@ -213,10 +213,10 @@ class BalanceDao(SqliteDao):
             table='balance',
             columns='bid, name, value, last_update',
             fields='''
-            bid          INTEGER  NOT NULL PRIMARY KEY,
-            name         TEXT     NOT NULL,
-            value        INTEGER  NOT NULL,
-            last_update  INTEGER  NOT NULL
+            bid          INTEGER NOT NULL PRIMARY KEY,
+            name         TEXT    NOT NULL,
+            value        INTEGER NOT NULL,
+            last_update  INTEGER NOT NULL
             ''')
         from config import BALANCE_DICT
         for bid in BALANCE_DICT.keys():
@@ -286,9 +286,9 @@ class BalanceDao(SqliteDao):
         with self._connect() as conn:
             try:
                 conn.execute('''
-                    UPDATE {0} SET value=?, last_update=? WHERE bid=?
+                    UPDATE {0} SET value=?, name=?, last_update=? WHERE bid=?
                     '''.format(self._table),
-                    (bal['value'], bal['last_update'], bal['bid'])
+                    (bal['value'], bal['name'], bal['last_update'], bal['bid'])
                 )
             except (sqlite3.DatabaseError) as e:
                 logger.error(f'[BalanceDao.modify] {e}')
