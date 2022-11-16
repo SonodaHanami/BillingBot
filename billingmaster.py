@@ -315,7 +315,9 @@ def func_modify(payment_id, value, balance_id, type_id, comment, time_):
         paydao.modify(payment_id, 'type', int(type_id))
     if time_ is not None:
         new_time = str(time_)
-        if re.match('^\d\d:?\d\d:?\d\d$', new_time):
+        if re.match('^\d?\d:?\d\d:?\d\d$', new_time):
+            new_time = '0' + new_time
+            new_time = new_time[-6:]
             new_time = str(datetime.fromtimestamp(p['time']))[0:11] + new_time
         new_time = totimestamp(str(new_time))
         paydao.modify(payment_id, 'time', new_time)
